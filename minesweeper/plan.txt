@@ -1,0 +1,130 @@
+*Sentence Class*
+    *known_mines*
+    -determine if cells are mines
+        -all cells are mines if the number of cells match the count
+            -if len(self.cells) == self.count:
+                return self.cells
+            return None
+
+    *known_safes*
+    -determine if cells are known_safes
+        -all cells are safe if the count for those cells is 0
+            -if count == 0
+                return self.cells
+        return None
+
+
+    **Mark Mine**
+    -check if cell to be marked as mine is part of the sentence's cells
+        -if cell in self.cells:
+            -if true, remove cell from the sentence's cells, and update count
+                -self.cells.remove(cell)
+                -count -= 1
+
+    
+    **Mark Safe**
+    -check if cell to be marked as safe is part of the sentence's cells
+        -if cell in self.cells:
+            -if true, remove cell from the sentence's cells, don't update count
+                -self.cells.remove(cell)
+
+
+*MinesweeperAI*
+
+    **add_knowledge**
+        -mark cell as a made move
+            -self.moves_made.add(cell)
+        
+        -mark the cell as a safe cell and update any sentences that contain the cell
+            -call mark_safe
+                -self.mark_safe(cell)
+        
+        -Create sentence that will contain the undetermined neighbors of cell with the appropriate count
+            -var to contain all neighbors of cell
+                -neighbors = []
+            
+            -check what cells are neighbors of cell based on cell's position
+                -loop for possible neighbors cells
+                    -for row in range(cell[0] - 1, range(cell[0] + 2)):
+                        -for col in range(cell[1] - 1, range(cell[-1] + 2)):
+                            -check if current row and col point to cell, if so go to next iter
+                                -if (i, j) == cell:
+                                    -continue
+                                
+                            -check if i or j are outside the boards bound
+                                -if 0 <= i < self.height and 0 <= j < self.width:
+                                    -ensure current neighbors are not marked as safe of mines
+                                        if (i,j) not in self.mines or (i,j) not in self.safes:
+                                            -neighbors.append((i, j))
+                                
+            -create sentence and add it to knowledge
+                -sentence = Sentence(neighbors, count)
+                -self.knowledge.append(sentence)
+        
+
+        -check if any new cells can be marked as safe or as mines based on each sentence in knowledge
+            -self.mark_safe_or_mine()
+        
+        -check if based on any of the sentences in self.knowledge, new cells can be marked as safe or as mines, then the function should do so
+            -nested loop over sentences in self.knowledge:
+                -for i in range(len(self.knowledge)):
+                    -current_sentence = self.knowledge[i]
+                    -for j in range(len(self.knowledge)):
+                        -next_sentence = self.knowledge[j]
+
+                        -check if next_sentence == current_sentence, go to next iter
+                            -if next_sentence == current_sentence:
+                                -continue
+
+                        -compare current sentence to other sentences to see if it leads to new knowledge
+                        -new knowledge in this case is if we can remove a cell from current sentence cells based on if we know that the cell is safe or a mine
+                            -first, lets check if next sentence's cells are safe or mines before adding or modifying the knowledge base
+
+                                -if next_sentence.known_mines():
+                                    -check to see if any cells in current sentence is present in next sentence
+
+                                        -loop over current sentence cells
+                                            -for cell in current_sentence.cells:
+                                                -if cell is present in next_sentence's mark it as mine
+                                                -if cell in next_sentence.cells:
+                                                    -current_sentence.mark_mine(cell)
+                                                    
+                                                    -also, add cell to self.mines
+                                                        -if cell not in self.mines:
+                                                            -self.mines.add(cell)
+
+
+                                -if next_sentence.known_safes():
+                                    -check to see if any cells in current_sentence is present in next_sentence
+
+                                        -loop over current_sentence cells
+                                            -for cell in current_sentence.cells:
+                                                -if cell is present in next_sentence's cells mark it as safe
+                                                    -if cell in next_sentence.cells:
+                                                        -current_sentence.mark_safe(cell)
+
+                                                        -also, add cell to self.safes
+                                                            -if cel not in self.safes:
+                                                                -self.safes.add(cell)
+    
+
+**new func**
+**mark_safe_or_mine**
+-check if any new cells can be marked as safe or as mines based on each sentence in knowledge
+    -for sentence in knowledge:
+        -check for cells known to be mines, add it to self.mines as long as it is not already in self.mines
+            -if sentence.known_mines():
+                -loop over sentence's cells
+                    -for cell in sentence.cells:
+                        -if cell not in self.mines:
+                            -self.mines.add(cell)
+            
+        -check for cells known to be safe, add it to self.sages as long as it is not already in self.safes
+            -if sentence.known_safes():
+                -loop over sentence's cells
+                    -for cell in sentence.cells:
+                        -if cell not in self.safes:
+                            -self.safes.add(cell)
+
+
+                    

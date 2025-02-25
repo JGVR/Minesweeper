@@ -17,7 +17,6 @@ WHITE = (255, 255, 255)
 pygame.init()
 size = width, height = 600, 400
 screen = pygame.display.set_mode(size)
-
 # Fonts
 OPEN_SANS = "assets/fonts/OpenSans-Regular.ttf"
 smallFont = pygame.font.Font(OPEN_SANS, 20)
