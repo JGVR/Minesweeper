@@ -124,7 +124,7 @@ class Sentence():
         """
         #if the cell is in the sentence, remove it and decrement the count
         if cell in self.cells:
-            cell.remove(cell)
+            self.cells.remove(cell)
             self.count -= 1
 
     def mark_safe(self, cell):
@@ -205,8 +205,8 @@ class MinesweeperAI():
         neighbors = []
 
         #check what cells are neighbors of cell based on cell's position
-        for row in range(cell[0] - 1, range(cell[0] + 2)):
-            for col in range(cell[1] - 1, range(cell[-1] + 2)):
+        for row in range(cell[0] - 1, cell[0] + 2):
+            for col in range(cell[1] - 1, cell[-1] + 2):
                 #check if current row and col point to cell, if so go to next iter
                 if (row, col) == cell:
                     continue
@@ -241,7 +241,7 @@ class MinesweeperAI():
                 # > first, lets check if next sentence's cells are safe or mines before adding or modifying the knowledge base
                 if next_sentence.known_mines():
                     #check to see if any cells in current sentence is present in next sentence
-                    for cell in current_sentence:
+                    for cell in set(current_sentence.cells):
                         #if cell is present in next_sentence's mark it as mine
                         if cell in next_sentence.cells:
                             current_sentence.mark_mine(cell)
@@ -252,7 +252,7 @@ class MinesweeperAI():
                 
                 if next_sentence.known_safes():
                     #check to see if any cells in current_sentence is present in next_sentence
-                    for cell in current_sentence.cells:
+                    for cell in set(current_sentence.cells):
                         #if cell is present in next_sentence's cells mark it as safe
                         if cell in next_sentence.cells:
                             current_sentence.mark_safe(cell)
@@ -260,8 +260,6 @@ class MinesweeperAI():
                         #also, add cell to self.mines
                         if cell not in self.mines:
                             self.mines.add(cell)
-                    
-
 
 
     def make_safe_move(self):
@@ -277,7 +275,7 @@ class MinesweeperAI():
         for sentence in self.knowledge:
             #check if the cells in sentence are safe
             if sentence.known_safes():
-                for cell in sentence:
+                for cell in sentence.cells:
                     #check if the cell has already been explored by checking moves_made, if no return cell and exit
                     if cell not in self.moves_made:
                         return cell
@@ -293,11 +291,19 @@ class MinesweeperAI():
         #loop over knowledge to get all sentences
         for sentence in self.knowledge:
             #check if are not mines
-            if not self.sentence.known_mines():
-                for cell in sentence:
+            if not sentence.known_mines():
+                for cell in sentence.cells:
                     #check if the cell has already been explored by checking moves_made, if no return cell and exit
                     if cell not in self.moves_made:
                         return cell
+        
+        #if no moves made, make a random move
+        if len(self.moves_made) == 0:
+            while True:
+                row = random.randint(0, self.height - 1)
+                col = random.randint(0, self.width - 1)
+                if (row, col) not in self.moves_made and (row, col) not in self.mines:
+                    return (row, col)
     
     def mark_safe_or_mine(self):
         """
@@ -307,12 +313,12 @@ class MinesweeperAI():
         for sentence in self.knowledge:
             #check for cells known to be mines, add it to self.mines as long as it is not already in self.mines
             if sentence.known_mines():
-                for cell in sentence:
+                for cell in sentence.cells:
                     if cell not in self.mines:
                         self.mines.add(cell)
             
             #check for cells known to be safe, add it to self.sages as long as it is not already in self.safes
             if sentence.known_safes():
-                for cell in sentence:
+                for cell in sentence.cells:
                     if cell not in self.safes:
                         self.safes.add(cell)
