@@ -159,7 +159,6 @@ while True:
     screen.blit(text, textRect)
 
     move = None
-
     left, _, right = pygame.mouse.get_pressed()
 
     # Check for a right-click to toggle flagging

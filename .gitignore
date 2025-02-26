@@ -43,6 +43,12 @@ Generated\ Files/
 #ignore virtual environtment
 venv/
 
+#ignore all files inside minesweeper folder but minesweeper.py
+minesweeper/assets/*
+minesweeper/__pycache__/*
+minesweeper/requirements.txt
+minesweeper/runner.py
+
 #ignore .DS_Store file
 .DS_Store
 
